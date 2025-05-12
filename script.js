@@ -1,13 +1,20 @@
-// Funkce pro načtení parametru z URL
-function getUserFromUrl() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get('user');
-}
+// Získání jména z URL parametrů
+const params = new URLSearchParams(window.location.search);
+const user = params.get("user");
 
-const user = getUserFromUrl();
+const messageEl = document.getElementById("message");
 
-if (user) {
-  document.getElementById('message').innerText = `${user.charAt(0).toUpperCase() + user.slice(1)}: přidáno pivo! 🍺`;
+if (!user) {
+  messageEl.textContent = "Chyba: Nebylo zadáno jméno.";
 } else {
-  document.getElementById('message').innerText = `Chybí parametr ?user=`;
+  // Odeslání dat na Google Script
+  fetch("https://script.google.com/macros/s/AKfycbx5sVkKZ7hySP0D-toNoiI9ItkjyCNvfpGBi8S7RXra1oHSZzyyjE_eL6dke00665w/exec?user=" + encodeURIComponent(user))
+    .then(res => res.text())
+    .then(response => {
+      messageEl.textContent = response;
+    })
+    .catch(err => {
+      console.error(err);
+      messageEl.textContent = "Došlo k chybě při odesílání.";
+    });
 }
